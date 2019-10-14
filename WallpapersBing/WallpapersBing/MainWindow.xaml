@@ -5,7 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WallpapersBing"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Wallpapers Bing"
+        Width="670"
+        Height="435"
+        MinWidth="670"
+        MinHeight="435"
+        MaxWidth="1300"
+        MaxHeight="700"
+        
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        >
     <Grid>
 
     </Grid>
