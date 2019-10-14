@@ -19,3 +19,4 @@ C:\Users\Админ\Documents\GitHub\WallpapersBing\WallpapersBing\WallpapersBin
 C:\Users\Админ\Documents\GitHub\WallpapersBing\WallpapersBing\WallpapersBing\obj\Debug\netcoreapp3.0\Styles\ExpressionDark.baml
 C:\Users\Админ\Documents\GitHub\WallpapersBing\WallpapersBing\WallpapersBing\obj\Debug\netcoreapp3.0\Styles\MyStyles.baml
 C:\Users\Админ\Documents\GitHub\WallpapersBing\WallpapersBing\WallpapersBing\obj\Debug\netcoreapp3.0\GeneratedInternalTypeHelper.g.cs
+C:\Users\Админ\Documents\GitHub\WallpapersBing\WallpapersBing\WallpapersBing\obj\Debug\netcoreapp3.0\WallpapersBing.csprojAssemblyReference.cache

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WallpapersBing.Model
+namespace WallpapersBing.ViewModels
 {
     class ImageView : Base.ViewModelBase
     {

@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:WallpapersBing.ViewModels"
         mc:Ignorable="d"
         Title="Wallpapers Bing"
-        Width="670"
+        Width="650"
         Height="435"
-        MinWidth="670"
+        MinWidth="650"
         MinHeight="435"
         MaxWidth="1300"
         MaxHeight="700"        
@@ -48,7 +48,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding FullPath}" Style="{StaticResource ImageStyle}" />
+                        <Image Source="{Binding FullPath}" Style="{StaticResource ImageStyle}" Stretch="UniformToFill"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
