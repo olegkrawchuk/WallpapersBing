@@ -1,35 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Base;
 
 namespace WallpapersBing.ViewModels
 {
     class MainWindowViewModel : ViewModelBase
     {
+        string bingUrl = @"https://www.bing.com";
+        string pathSaveDirectory = Environment.CurrentDirectory;
+
+        [DllImport("user32.dll")]
+        public static extern bool SystemParametersInfo(UInt32 uiAction, UInt32 uiParam, string pvParam, UInt32 fWinIni);
+        const uint SPI_SETDESKWALLPAPER = 0x14;
+        const uint SPIF_UPDATEINIFILE = 0x01;
+        const uint SPIF_SENDWININICHANGE = 0x02;
+
+        //SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, _selectedImage.FullPath, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+
         public MainWindowViewModel()
-        {
-            Images.Add(new ImageView()
-            {
-                FullPath = @"https://www.bing.com/th?id=OHR.AlbertaThanksgiving_ROW3027926486_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp",
-                Name = "SDC12344.JPG",
-                CreationTime = DateTime.Now
-            });
-
-            Images.Add(new ImageView()
-            {
-                FullPath = @"F:\Фото\1 Мая 2010г\SDC12345.JPG",
-                Name = "SDC12345.JPG",
-                CreationTime = DateTime.Now.AddDays(-1)
-            }) ;
-
+        {      
             using var client = new HttpClient();
-            string xml = client.GetStringAsync(@"https://www.bing.com/HPImageArchive.aspx?idx=0&n=10").GetAwaiter().GetResult();
-            Model.XmlDeserializer<Model.Image> deserializer = new Model.XmlDeserializer<Model.Image>(xml, "images");
-            var res = deserializer.Deserialize();
-            var list = res as List<Model.Image>;
+            string xml = client.GetStringAsync(bingUrl + @"/HPImageArchive.aspx?idx=0&n=10").GetAwaiter().GetResult();
+            using System.IO.StringReader stringReader = new System.IO.StringReader(xml);
+
+            XmlSerializer deserializer = new XmlSerializer(typeof(Model.images), new XmlRootAttribute("images"));
+            var res = deserializer.Deserialize(stringReader) as Model.images;
+
+            foreach (var item in res.image)
+            {
+                Images.Add(new ImageView()
+                    {
+                    FullPath = bingUrl + item.url,
+                    Name = item.urlBase.Split("=", StringSplitOptions.RemoveEmptyEntries)[1],
+                    CreationTime = DateTime.Now
+                });
+            }
+            
 
         }
 
@@ -40,7 +53,43 @@ namespace WallpapersBing.ViewModels
         public ImageView SelectedImage 
         {
             get => _selectedImage;
-            set => SetProperty(ref _selectedImage, value, nameof(SelectedImage));
+            set
+            { 
+                SetProperty(ref _selectedImage, value, nameof(SelectedImage));
+                if (!_selectedImage.FullPath.StartsWith(pathSaveDirectory))
+                {
+                    var path = SaveImage(_selectedImage.FullPath).GetAwaiter().GetResult();
+                    _selectedImage.FullPath = path;
+                }
+
+                SetWallpaper(_selectedImage.FullPath).GetAwaiter().GetResult();                                
+            }
+        }
+
+        private async Task<string> SaveImage(string url)
+        {
+            using var client = new HttpClient();
+            using var responce = await client.GetAsync(url);            
+            var content = await responce.Content.ReadAsStringAsync();
+
+            string fullpath = Path.Combine(pathSaveDirectory, _selectedImage.Name) + ".jpg";
+
+            using var stream = new StreamWriter(fullpath);
+            await stream.WriteAsync(content);
+            await stream.DisposeAsync();
+
+            return fullpath;
+        }
+
+
+
+        private async Task<bool> SetWallpaper(string path)
+        {
+            bool res = false;
+            await Task.Run(() => {
+                res = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);                
+            });
+            return res;
         }
     }
 }
