@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using Base;
 
@@ -25,24 +26,35 @@ namespace WallpapersBing.ViewModels
 
         public MainWindowViewModel()
         {
-
             string url = bingUrl + @"/HPImageArchive.aspx?idx=0&n=10";
+            UpdateListImages(url);
+        }
 
+        Model.imagesImage[] GetImages(string url)
+        {
             Model.WebImageSource imageSource = new Model.WebImageSource(url);
             var res = imageSource.GetImages();
-
-            foreach (var item in res.image)
-            {
-                Images.Add(new ImageView()
-                    {
-                    FullPath = bingUrl + item.url,
-                    Name = item.urlBase.Split("=", StringSplitOptions.RemoveEmptyEntries)[1],
-                    CreationTime = DateTime.Now
-                });
-            }
-            
-
+            return res.image;
         }
+
+        void UpdateListImages(string url)
+        {
+            var res = GetImages(url);
+            if (res.Length > 0)
+            {
+                Images.Clear();
+                foreach (var item in res)
+                {
+                    Images.Add(new ImageView()
+                    {
+                        FullPath = bingUrl + item.url,
+                        Name = item.urlBase.Split("=", StringSplitOptions.RemoveEmptyEntries)[1],
+                        CreationTime = DateTime.Now
+                    });
+                }
+            }            
+        }
+
 
         public ObservableCollection<ImageView> Images { get; } = new ObservableCollection<ImageView>();
 
@@ -72,8 +84,6 @@ namespace WallpapersBing.ViewModels
             responce.Dispose();
             
             string fullpath = Path.Combine(pathSaveDirectory, _selectedImage.Name) + ".jpg";
-            //System.Drawing.ImageConverter converter = new ImageConverter();
-            //converter.ConvertFromString(content);
 
             FileStream stream = new FileStream(fullpath, FileMode.Create, FileAccess.Write);
             stream.Write(content);
@@ -84,12 +94,7 @@ namespace WallpapersBing.ViewModels
 
 
 
-        private bool SetWallpaper(string path)
-        {
-            //await Task.Run(() => {
-            bool res = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-            //});
-            return res;
-        }
+        private bool SetWallpaper(string path) => 
+            SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
     }
 }
