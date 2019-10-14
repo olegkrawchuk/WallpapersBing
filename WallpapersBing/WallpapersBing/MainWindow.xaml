@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WallpapersBing"
+        xmlns:local="clr-namespace:WallpapersBing.ViewModels"
         mc:Ignorable="d"
         Title="Wallpapers Bing"
         Width="670"
@@ -11,12 +11,57 @@
         MinWidth="670"
         MinHeight="435"
         MaxWidth="1300"
-        MaxHeight="700"
-        
+        MaxHeight="700"        
         ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
         >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles\MyStyles.xaml" />
+                <ResourceDictionary Source="Styles\ExpressionDark.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.DataContext>
+        <local:MainWindowViewModel></local:MainWindowViewModel>
+    </Window.DataContext>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="25"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <ListView Grid.Row="0"
+                  Focusable="True"
+                  ItemsSource="{Binding Images}"
+                  SelectedItem="{Binding SelectedImage, UpdateSourceTrigger=PropertyChanged}"
+                  TabIndex="0"                  
+                  >
+            <!--SelectedItem="{Binding}"-->
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Image Source="{Binding FullPath}" Style="{StaticResource ImageStyle}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <StatusBar Grid.Row="1" VerticalAlignment="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding SelectedImage.Name}" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding SelectedImage.CreationTime}" />
+            </StatusBarItem>
+        </StatusBar>
 
     </Grid>
 </Window>

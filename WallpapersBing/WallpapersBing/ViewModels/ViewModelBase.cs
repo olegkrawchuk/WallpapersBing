@@ -4,7 +4,7 @@ namespace Base
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        protected virtual bool SetProperty<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+        protected virtual bool SetProperty<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] System.String propertyName = "")
         {
             if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(storage, value))
                 return false;
@@ -16,7 +16,7 @@ namespace Base
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged(System.String propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
