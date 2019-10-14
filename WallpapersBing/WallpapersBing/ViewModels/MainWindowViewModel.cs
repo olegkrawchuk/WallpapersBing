@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,15 +13,7 @@ namespace WallpapersBing.ViewModels
     class MainWindowViewModel : ViewModelBase
     {
         string bingUrl = @"https://www.bing.com";
-        string pathSaveDirectory = Environment.CurrentDirectory;
-
-        [DllImport("user32.dll")]
-        public static extern bool SystemParametersInfo(UInt32 uiAction, UInt32 uiParam, string pvParam, UInt32 fWinIni);
-        const uint SPI_SETDESKWALLPAPER = 0x14;
-        const uint SPIF_UPDATEINIFILE = 0x01;
-        const uint SPIF_SENDWININICHANGE = 0x02;
-
-        //SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, _selectedImage.FullPath, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+        string pathSaveDirectory = Path.Combine(Environment.CurrentDirectory, "Wallpapers");
 
         public MainWindowViewModel()
         {
@@ -36,7 +27,6 @@ namespace WallpapersBing.ViewModels
             var res = imageSource.GetImages();
             return res.image;
         }
-
         void UpdateListImages(string url)
         {
             var res = GetImages(url);
@@ -66,13 +56,14 @@ namespace WallpapersBing.ViewModels
             set
             { 
                 SetProperty(ref _selectedImage, value, nameof(SelectedImage));
+
                 if (!_selectedImage.FullPath.StartsWith(pathSaveDirectory))
                 {
                     var path = SaveImage(_selectedImage.FullPath);
                     _selectedImage.FullPath = path;
                 }
 
-                SetWallpaper(_selectedImage.FullPath);
+                Helpers.WallpaperSetter.SetWallpaper(_selectedImage.FullPath);
             }
         }
 
@@ -91,10 +82,5 @@ namespace WallpapersBing.ViewModels
 
             return fullpath;
         }
-
-
-
-        private bool SetWallpaper(string path) => 
-            SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
     }
 }
