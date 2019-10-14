@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using Base;
 
 namespace WallpapersBing.ViewModels
@@ -25,13 +24,12 @@ namespace WallpapersBing.ViewModels
         //SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, _selectedImage.FullPath, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
 
         public MainWindowViewModel()
-        {      
-            using var client = new HttpClient();
-            string xml = client.GetStringAsync(bingUrl + @"/HPImageArchive.aspx?idx=0&n=10").GetAwaiter().GetResult();
-            using System.IO.StringReader stringReader = new System.IO.StringReader(xml);
+        {
 
-            XmlSerializer deserializer = new XmlSerializer(typeof(Model.images), new XmlRootAttribute("images"));
-            var res = deserializer.Deserialize(stringReader) as Model.images;
+            string url = bingUrl + @"/HPImageArchive.aspx?idx=0&n=10";
+
+            Model.WebImageSource imageSource = new Model.WebImageSource(url);
+            var res = imageSource.GetImages();
 
             foreach (var item in res.image)
             {
@@ -58,37 +56,39 @@ namespace WallpapersBing.ViewModels
                 SetProperty(ref _selectedImage, value, nameof(SelectedImage));
                 if (!_selectedImage.FullPath.StartsWith(pathSaveDirectory))
                 {
-                    var path = SaveImage(_selectedImage.FullPath).GetAwaiter().GetResult();
+                    var path = SaveImage(_selectedImage.FullPath);
                     _selectedImage.FullPath = path;
                 }
 
-                SetWallpaper(_selectedImage.FullPath).GetAwaiter().GetResult();                                
+                SetWallpaper(_selectedImage.FullPath);
             }
         }
 
-        private async Task<string> SaveImage(string url)
+        private string SaveImage(string url)
         {
             using var client = new HttpClient();
-            using var responce = await client.GetAsync(url);            
-            var content = await responce.Content.ReadAsStringAsync();
-
+            var responce = client.GetAsync(url).GetAwaiter().GetResult();
+            var content = responce.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+            responce.Dispose();
+            
             string fullpath = Path.Combine(pathSaveDirectory, _selectedImage.Name) + ".jpg";
+            //System.Drawing.ImageConverter converter = new ImageConverter();
+            //converter.ConvertFromString(content);
 
-            using var stream = new StreamWriter(fullpath);
-            await stream.WriteAsync(content);
-            await stream.DisposeAsync();
+            FileStream stream = new FileStream(fullpath, FileMode.Create, FileAccess.Write);
+            stream.Write(content);
+            stream.Close();
 
             return fullpath;
         }
 
 
 
-        private async Task<bool> SetWallpaper(string path)
+        private bool SetWallpaper(string path)
         {
-            bool res = false;
-            await Task.Run(() => {
-                res = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);                
-            });
+            //await Task.Run(() => {
+            bool res = SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+            //});
             return res;
         }
     }
