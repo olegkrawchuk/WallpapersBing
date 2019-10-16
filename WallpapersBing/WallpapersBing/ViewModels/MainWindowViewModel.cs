@@ -48,7 +48,7 @@ namespace WallpapersBing.ViewModels
                     {
                         FullPath = bingUrl + item.url,
                         Name = item.urlBase.Split("=", StringSplitOptions.RemoveEmptyEntries)[1],
-                        CreationTime = new DateTime(year, month, day)
+                        CreationTime = new DateTime(year, month, day, 0, 0, 0)
                     });
                 }
             }            
