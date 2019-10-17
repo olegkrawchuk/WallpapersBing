@@ -13,7 +13,6 @@ namespace Base
             return true;
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(System.String propertyName)

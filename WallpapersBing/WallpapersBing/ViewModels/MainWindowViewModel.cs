@@ -36,13 +36,14 @@ namespace WallpapersBing.ViewModels
             if (res.Length > 0)
             {
                 Images.Clear();
+
                 foreach (var item in res)
                 {
                     string date = item.startdate.ToString();
+                    
                     int year = int.Parse(date.Substring(0, 4));
                     int month = int.Parse(date.Substring(4, 2));
                     int day = int.Parse(date.Substring(6, 2));
-
 
                     Images.Add(new ImageView()
                     {

@@ -93,7 +93,7 @@ namespace WallpapersBing.Model
         {
             get
             {
-                return this.fullstartdateField;
+                return fullstartdateField;
             }
             set
             {

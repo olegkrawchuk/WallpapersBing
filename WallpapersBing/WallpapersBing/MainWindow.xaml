@@ -38,10 +38,9 @@
         <ListView Grid.Row="0"
                   Focusable="True"
                   ItemsSource="{Binding Images}"
-                  SelectedItem="{Binding SelectedImage, UpdateSourceTrigger=PropertyChanged}"
+                  SelectedItem="{Binding SelectedImage}"
                   TabIndex="0"                  
                   >
-            <!--SelectedItem="{Binding}"-->
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
